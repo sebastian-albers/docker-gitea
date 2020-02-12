@@ -1,0 +1,18 @@
+sudo: required
+services:
+- docker
+language: bash
+script:
+# prepare qemu
+- docker run --rm --privileged multiarch/qemu-user-static:register --reset
+# build image
+- docker build -t sebastianalbers/rpi-gitea .
+# test image
+- docker run sebastianalbers/rpi-gitea /app/gitea/gitea --version
+after_success:
+# notify Docker Hub to make a new build
+- >
+  if [ "$TRAVIS_BRANCH" == "master" ]; then
+    curl -X POST "$DOCKER_HUB_TRIGGER_URL"
+  fi
+

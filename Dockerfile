@@ -1,6 +1,6 @@
 FROM resin/armhf-alpine
 
-ARG VERSION=1.11.0
+ARG VERSION
 
 EXPOSE 22 3000
 

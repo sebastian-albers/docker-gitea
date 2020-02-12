@@ -3,16 +3,23 @@ services:
 - docker
 language: bash
 script:
+# lookup latest Gitea version
+- gitea_version=$(curl -sX GET https://api.github.com/repos/go-gitea/gitea/releases | jq -r 'first(.[]) | .tag_name' | sed 's/^.//')
 # prepare qemu
 - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 # build image
-- docker build -t sebastianalbers/rpi-gitea .
+- docker build --build-arg VERSION="${gitea_version}" -t sebastianalbers/rpi-gitea .
 # test image
 - docker run sebastianalbers/rpi-gitea /app/gitea/gitea --version
 after_success:
 # notify Docker Hub to make a new build
 - >
   if [ "$TRAVIS_BRANCH" == "master" ]; then
+    # trigger latest build on Docker Hub
     curl -X POST "$DOCKER_HUB_TRIGGER_URL"
+    # tag Docker image with version and push to Docker Hub
+    docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+    docker tag "sebastianalbers/rpi-gitea:latest" "sebastianalbers/rpi-gitea:${gitea_version}"
+    docker push "sebastianalbers/rpi-gitea:${gitea_version}"
   fi
 

@@ -1,7 +1,5 @@
 FROM resin/armhf-alpine
 
-ARG VERSION
-
 EXPOSE 22 3000
 
 ENV USER git
@@ -35,13 +33,12 @@ RUN addgroup \
     git && \
   echo "git:$(dd if=/dev/urandom bs=24 count=1 status=none | base64)" | chpasswd
 
-# get Gitea Docker files
-RUN curl -SL https://github.com/go-gitea/gitea/archive/v$VERSION.tar.gz | \
-    tar xz gitea-$VERSION/docker --exclude=gitea-$VERSION/docker/Makefile --strip-components=3
-
-# get Gitea
-RUN mkdir -p /app/gitea && \
-    curl -SLo /app/gitea/gitea https://github.com/go-gitea/gitea/releases/download/v$VERSION/gitea-$VERSION-linux-arm-6 && \
+# get version and url, then install Gitea
+RUN VERSION=$(curl -sX GET https://api.github.com/repos/go-gitea/gitea/releases | jq -r 'first(.[]) | .tag_name' | sed 's/^.//') && \
+    URL=$(curl -s https://api.github.com/repos/go-gitea/gitea/releases/tags/v$VERSION | jq -r '.assets[].browser_download_url' | grep arm-6 | awk 'NR==1{print $1}') && \
+    mkdir -p /app/gitea && \
+    curl -SLo /app/gitea/gitea $URL && \
+    curl -SL https://github.com/go-gitea/gitea/archive/v$VERSION.tar.gz | tar xz gitea-$VERSION/docker --exclude=gitea-$VERSION/docker/Makefile --strip-components=3 && \
     chmod 0755 /app/gitea/gitea
 
 VOLUME ["/data"]

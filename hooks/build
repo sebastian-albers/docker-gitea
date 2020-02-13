@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -euxo pipefail
+
+# lookup latest Gitea version
+gitea_version=$(curl -sX GET https://api.github.com/repos/go-gitea/gitea/releases | grep '"tag_name"' | head -1 | sed 's/.*: "v\(.*\)".*/\1/')
+
+# build Docker image
+docker build --build-arg VERSION="${gitea_version}" -f $DOCKERFILE_PATH -t $IMAGE_NAME .
+

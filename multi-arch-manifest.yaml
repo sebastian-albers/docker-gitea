@@ -1,4 +1,5 @@
-image: sebastianalbers/gitea:__TAG__
+image: sebastianalbers/gitea:latest
+tags: [__TAGS__]
 manifests:
   - image: sebastianalbers/gitea:latest-amd64
     platform:

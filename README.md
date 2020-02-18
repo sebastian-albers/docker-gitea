@@ -22,7 +22,7 @@ This configuration will publicly expose ports 3000 and 22.
     version: '2'
     services:
       web:
-        image: gitea/gitea:1.8.3
+        image: sebastianalbers/gitea:1.11.1
         volumes:
           - ./data:/data
         ports:

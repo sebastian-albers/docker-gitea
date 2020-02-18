@@ -1,6 +1,6 @@
-# docker-gitea
+# Gitea
 
-![Travis](https://img.shields.io/travis/sebastian-albers/docker-gitea.svg)
+![Travis](https://img.shields.io/travis/com/sebastian-albers/docker-gitea.svg)
 ![Docker Build Status](https://img.shields.io/docker/cloud/build/sebastianalbers/gitea.svg)
 ![Docker Automated build](https://img.shields.io/docker/cloud/automated/sebastianalbers/gitea.svg)
 ![Docker Pulls](https://img.shields.io/docker/pulls/sebastianalbers/gitea.svg)

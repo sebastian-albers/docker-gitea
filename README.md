@@ -1,7 +1,7 @@
 # Gitea
 
 [![Build Status](https://travis-ci.com/salbers/docker-gitea.svg?token=4By62F4TaqJz29wWsCz2&branch=master)](https://travis-ci.com/bitbucket/salbers/docker-gitea)
-![Docker Build Status](https://img.shields.io/docker/cloud/build/sebastianalbers/gitea.svg)
+[![Docker Build Status](https://img.shields.io/docker/cloud/build/sebastianalbers/gitea.svg)](https://hub.docker.com/r/sebastianalbers/gitea/builds)
 ![Docker Automated build](https://img.shields.io/docker/cloud/automated/sebastianalbers/gitea.svg)
 ![Docker Pulls](https://img.shields.io/docker/pulls/sebastianalbers/gitea.svg)
 ![Docker Stars](https://img.shields.io/docker/stars/sebastianalbers/gitea.svg)

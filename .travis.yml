@@ -6,7 +6,7 @@ script:
 # register qemu-*-static for all supported processors except the current one
 - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 # generate platform-specific Dockerfile
-- ./generate-dockerfiles.sh
+- ./generate-dockerfiles.sh "${GITHUB_CLIENT_ID}:${GITHUB_CLIENT_SECRET}"
 # build platform-specific Docker images
 - docker build -f Dockerfile.amd64 -t sebastianalbers/gitea:latest-amd64 .
 - docker build -f Dockerfile.arm32v7 -t sebastianalbers/gitea:latest-arm32v7 .

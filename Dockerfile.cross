@@ -42,13 +42,10 @@ RUN addgroup \
     git && \
   echo "git:$(dd if=/dev/urandom bs=24 count=1 status=none | base64)" | chpasswd
 
-# get version and url, then install Gitea
-RUN VERSION=$(curl -sX GET https://api.github.com/repos/go-gitea/gitea/releases | jq -r 'first(.[]) | .tag_name' | sed 's/^.//') && \
-    URL=$(curl -s https://api.github.com/repos/go-gitea/gitea/releases/tags/v$VERSION | jq -r '.assets[].browser_download_url' | grep __GITEA_ARCH__ | awk 'NR==1{print $1}') && \
-    mkdir -p /app/gitea && \
-    curl -SLo /app/gitea/gitea $URL && \
-    curl -SL https://github.com/go-gitea/gitea/archive/v$VERSION.tar.gz | tar xz gitea-$VERSION/docker --exclude=gitea-$VERSION/docker/Makefile --strip-components=3 && \
-    chmod 0755 /app/gitea/gitea
+# install Gitea via installation script
+COPY install-gitea.sh /usr/bin/install-gitea.sh
+RUN /usr/bin/install-gitea.sh "__GITHUB_CLIENT_CREDENTIALS__" __GITEA_ARCH__ && \
+    rm /usr/bin/install-gitea.sh
 
 VOLUME ["/data"]
 

@@ -6,4 +6,4 @@ set -euxo pipefail
 docker run --rm --privileged multiarch/qemu-user-static:register --reset
 
 # generate platform-specific Dockerfiles
-./generate-dockerfiles.sh
+./generate-dockerfiles.sh "${GITHUB_CLIENT_ID}:${GITHUB_CLIENT_SECRET}"

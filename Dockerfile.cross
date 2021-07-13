@@ -44,7 +44,7 @@ RUN addgroup \
 
 # install Gitea via installation script
 COPY install-gitea.sh /usr/bin/install-gitea.sh
-RUN /usr/bin/install-gitea.sh "__GITHUB_CLIENT_CREDENTIALS__" __GITEA_ARCH__ && \
+RUN /usr/bin/install-gitea.sh "__GITHUB_TOKEN__" __GITEA_ARCH__ && \
     rm /usr/bin/install-gitea.sh
 
 VOLUME ["/data"]

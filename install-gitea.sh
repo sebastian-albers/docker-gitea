@@ -3,20 +3,20 @@
 set -euo pipefail
 
 # parameters
-GITHUB_CREDENTIALS=$1
+GITHUB_TOKEN=$1
 GITEA_ARCH=$2
 echo "GITEA_ARCH: ${GITEA_ARCH}"
 
 
 # get version
 RELEASES_URL="https://api.github.com/repos/go-gitea/gitea/releases"
-VERSION=$(curl -u "${GITHUB_CREDENTIALS}" -s "${RELEASES_URL}" | jq -r 'first(.[]).tag_name[1:]')
+VERSION=$(curl --header "authorization: Bearer ${GITHUB_TOKEN}" -s "${RELEASES_URL}" | jq -r 'first(.[]).tag_name[1:]')
 echo "VERSION: ${VERSION}"
 
 # get urls
 ARCHIVE_URL="https://github.com/go-gitea/gitea/archive/v${VERSION}.tar.gz"
 RELEASE_TAG_URL="https://api.github.com/repos/go-gitea/gitea/releases/tags/v${VERSION}"
-URL=$(curl -u "${GITHUB_CREDENTIALS}" -s "${RELEASE_TAG_URL}" | jq -r '.assets[].browser_download_url' | grep "${GITEA_ARCH}" | awk 'NR==1{print $1}')
+URL=$(curl --header "authorization: Bearer ${GITHUB_TOKEN}" -s "${RELEASE_TAG_URL}" | jq -r '.assets[].browser_download_url' | grep "${GITEA_ARCH}" | awk 'NR==1{print $1}')
 
 # install Gitea
 mkdir -p /app/gitea

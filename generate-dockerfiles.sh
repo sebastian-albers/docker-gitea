@@ -2,7 +2,7 @@
 
 set -eou pipefail
 
-GITHUB_CLIENT_CREDENTIALS=$1
+GITHUB_TOKEN=$1
 
 for docker_arch in amd64 arm32v7 arm64v8; do
   case ${docker_arch} in
@@ -11,7 +11,7 @@ for docker_arch in amd64 arm32v7 arm64v8; do
     arm64v8 ) qemu_arch="aarch64" ; gitea_arch="linux-arm64" ;;
   esac
   cp Dockerfile.cross Dockerfile.${docker_arch}
-  sed -i"" "s|__GITHUB_CLIENT_CREDENTIALS__|${GITHUB_CLIENT_CREDENTIALS}|g" Dockerfile.${docker_arch}
+  sed -i"" "s|__GITHUB_TOKEN__|${GITHUB_TOKEN}|g" Dockerfile.${docker_arch}
   sed -i"" "s|__BASEIMAGE_ARCH__|${docker_arch}|g" Dockerfile.${docker_arch}
   sed -i"" "s|__QEMU_ARCH__|${qemu_arch}|g" Dockerfile.${docker_arch}
   sed -i"" "s|__GITEA_ARCH__|${gitea_arch}|g" Dockerfile.${docker_arch}

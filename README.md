@@ -1,8 +1,6 @@
 # Gitea
 
 [![Build Status](https://github.com/sebastian-albers/docker-gitea/actions/workflows/main.yml/badge.svg)](https://github.com/sebastian-albers/docker-gitea/actions/workflows/main.yml)
-[![Docker Build Status](https://img.shields.io/docker/cloud/build/sebastianalbers/gitea.svg)](https://hub.docker.com/r/sebastianalbers/gitea/builds)
-![Docker Automated build](https://img.shields.io/docker/cloud/automated/sebastianalbers/gitea.svg)
 ![Docker Pulls](https://img.shields.io/docker/pulls/sebastianalbers/gitea.svg)
 ![Docker Stars](https://img.shields.io/docker/stars/sebastianalbers/gitea.svg)
 

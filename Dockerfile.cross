@@ -27,7 +27,8 @@ RUN apk --no-cache add \
     sqlite \
     su-exec \
     tzdata \
-    jq
+    jq \
+    head
 
 # add user 'git' and group 'git'
 RUN addgroup \

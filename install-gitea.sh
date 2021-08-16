@@ -10,7 +10,7 @@ echo "GITEA_ARCH: ${GITEA_ARCH}"
 
 # get version
 RELEASES_URL="https://api.github.com/repos/go-gitea/gitea/releases"
-VERSION=$(curl --header "authorization: Bearer ${GITHUB_TOKEN}" -s "${RELEASES_URL}" | jq -r 'first(.[]).tag_name[1:]')
+VERSION=$(curl --header "authorization: Bearer ${GITHUB_TOKEN}" -s "${RELEASES_URL}" | jq -r '.[].tag_name[1:] | select(contains("rc") | not)' | head -1)
 echo "VERSION: ${VERSION}"
 
 # get urls

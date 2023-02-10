@@ -4,6 +4,33 @@ __CROSS_# download QEMU
 __CROSS_ENV QEMU_URL https://github.com/multiarch/qemu-user-static/releases/download/v4.2.0-4/x86_64_qemu-__QEMU_ARCH__-static.tar.gz
 __CROSS_RUN apk add curl && curl -L ${QEMU_URL} | tar zxvf -
 __CROSS_
+__CROSS_
+FROM golang:alpine AS build-env
+
+ENV TAGS "bindata timetzdata sqlite sqlite_unlock_notify"
+ENV GOARCH __GO_ARCH__
+
+RUN apk --no-cache add \
+    build-base \
+    bash \
+    git \
+    nodejs \
+    npm \
+    curl \
+    jq
+
+WORKDIR ${GOPATH}/src/code.gitea.io/gitea
+
+# get Gitea source code
+COPY download-gitea.sh /usr/bin/download-gitea.sh
+RUN /usr/bin/download-gitea.sh "__GITHUB_TOKEN__" __GITEA_ARCH__ && \
+    rm /usr/bin/download-gitea.sh
+
+# build environment-to-ini
+RUN go build contrib/environment-to-ini/environment-to-ini.go
+
+
+# based on https://github.com/go-gitea/gitea/blob/main/Dockerfile
 FROM __BASEIMAGE_ARCH__/alpine
 __CROSS_
 __CROSS_# Add QEMU
@@ -11,10 +38,6 @@ __CROSS_COPY --from=builder qemu-__QEMU_ARCH__-static /usr/bin
 
 EXPOSE 22 3000
 
-ENV USER git
-ENV GITEA_CUSTOM /data/gitea
-
-# install packages
 RUN apk --no-cache add \
     bash \
     ca-certificates \
@@ -26,10 +49,8 @@ RUN apk --no-cache add \
     s6 \
     sqlite \
     su-exec \
-    tzdata \
-    jq
+    gnupg
 
-# add user 'git' and group 'git'
 RUN addgroup \
     -S -g 1000 \
     git && \
@@ -40,15 +61,18 @@ RUN addgroup \
     -u 1000 \
     -G git \
     git && \
-  echo "git:$(dd if=/dev/urandom bs=24 count=1 status=none | base64)" | chpasswd
+  echo "git:*" | chpasswd -e
 
-# install Gitea via installation script
-COPY install-gitea.sh /usr/bin/install-gitea.sh
-RUN /usr/bin/install-gitea.sh "__GITHUB_TOKEN__" __GITEA_ARCH__ && \
-    rm /usr/bin/install-gitea.sh
+ENV USER git
+ENV GITEA_CUSTOM /data/gitea
 
 VOLUME ["/data"]
 
 ENTRYPOINT ["/usr/bin/entrypoint"]
-
 CMD ["/bin/s6-svscan", "/etc/s6"]
+
+COPY --from=build-env /go/src/code.gitea.io/gitea/docker/root /
+COPY --from=build-env /go/src/code.gitea.io/gitea/gitea /app/gitea/gitea
+COPY --from=build-env /go/src/code.gitea.io/gitea/environment-to-ini /usr/local/bin/environment-to-ini
+RUN chmod 755 /usr/bin/entrypoint /app/gitea/gitea /usr/local/bin/gitea /usr/local/bin/environment-to-ini
+RUN chmod 755 /etc/s6/gitea/* /etc/s6/openssh/* /etc/s6/.s6-svscan/*

@@ -20,8 +20,7 @@ URL=$(curl --header "authorization: Bearer ${GITHUB_TOKEN}" -s "${RELEASE_TAG_UR
 
 # download Gitea source
 echo "Downloading and unpacking archive from ${ARCHIVE_URL} ..."
-curl -sSL "${ARCHIVE_URL}" | \
-  tar xz "gitea-${VERSION}/" --strip-components=1
+curl -sSL "${ARCHIVE_URL}" | tar xz --strip-components=1
 echo "Downloading Gitea app from ${URL} ..."
 curl -sSLo gitea "${URL}"
 echo "Done."

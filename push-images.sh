@@ -1,18 +1,31 @@
 #!/bin/bash
 
-set -euxo pipefail
+set -eou pipefail
 
-# login to Docker Hub
-echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+version=$(./read-version.sh)
+current_version=
+tags=
 
-# push latest amd64, arm32v7 and arm64v8 images
-docker push "sebastianalbers/gitea:latest-amd64"
-docker push "sebastianalbers/gitea:latest-arm32v7"
-docker push "sebastianalbers/gitea:latest-arm64v8"
+# split version and create tags, e.g. 1.2.3.4 => '1', '1.2', '1.2.3', '1.2.3.4'
+IFS='.' read -ra PART <<< "$version"
+for i in "${PART[@]}"; do
+  if [ -z "${current_version}" ] ; then
+    current_version="${i}"
+  else
+    current_version="${current_version}.${i}"
+  fi
+  if [ -z "${tags}" ] ; then
+    tags="${current_version}"
+  else
+    tags="${tags} ${current_version}"
+  fi
+done
 
-# read version from Docker container
-version=$(./read-version.sh amd64)
+# push latest tag
+docker push "sebastianalbers/gitea:latest"
 
-# push multi-arch image
-./push-multi-arch-image.sh "${version}"
-
+# push all version tags
+for tag in $tags ; do
+  docker tag "sebastianalbers/gitea:latest" "sebastianalbers/gitea:${tag}"
+  docker push "sebastianalbers/gitea:${tag}"
+done

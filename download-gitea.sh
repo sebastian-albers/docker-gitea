@@ -4,7 +4,14 @@ set -euo pipefail
 
 # parameters
 GITHUB_TOKEN=$1
-GITEA_ARCH=$2
+TARGET_PLATFORM=$2
+
+# derive Gitea architecture
+case ${TARGET_PLATFORM} in
+  linux/amd64  ) GITEA_ARCH="linux-amd64" ;;
+  linux/arm/v7 ) GITEA_ARCH="linux-arm-6" ;;
+  linux/arm64  ) GITEA_ARCH="linux-arm64" ;;
+esac
 echo "GITEA_ARCH: ${GITEA_ARCH}"
 
 

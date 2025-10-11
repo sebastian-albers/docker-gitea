@@ -1,14 +1,10 @@
-__CROSS_FROM alpine AS builder
-__CROSS_
-__CROSS_# download QEMU
-__CROSS_ENV QEMU_URL https://github.com/multiarch/qemu-user-static/releases/download/v4.2.0-4/x86_64_qemu-__QEMU_ARCH__-static.tar.gz
-__CROSS_RUN apk add curl && curl -L ${QEMU_URL} | tar zxvf -
-__CROSS_
-__CROSS_
 FROM golang:alpine AS build-env
 
+ARG GITHUB_TOKEN
+ARG TARGETPLATFORM
+RUN echo "Building for $TARGETPLATFORM"
+
 ENV TAGS "bindata timetzdata sqlite sqlite_unlock_notify"
-ENV GOARCH __GO_ARCH__
 
 RUN apk --no-cache add \
     build-base \
@@ -23,7 +19,7 @@ WORKDIR ${GOPATH}/src/code.gitea.io/gitea
 
 # get Gitea source code
 COPY download-gitea.sh /usr/bin/download-gitea.sh
-RUN /usr/bin/download-gitea.sh "__GITHUB_TOKEN__" __GITEA_ARCH__ && \
+RUN /usr/bin/download-gitea.sh "$GITHUB_TOKEN" "$TARGETPLATFORM" && \
     rm /usr/bin/download-gitea.sh
 
 # build environment-to-ini
@@ -31,10 +27,7 @@ RUN go build contrib/environment-to-ini/environment-to-ini.go
 
 
 # based on https://github.com/go-gitea/gitea/blob/main/Dockerfile
-FROM __BASEIMAGE_ARCH__/alpine
-__CROSS_
-__CROSS_# Add QEMU
-__CROSS_COPY --from=builder qemu-__QEMU_ARCH__-static /usr/bin
+FROM alpine
 
 EXPOSE 22 3000
 
@@ -49,7 +42,8 @@ RUN apk --no-cache add \
     s6 \
     sqlite \
     su-exec \
-    gnupg
+    gnupg \
+    && rm -rf /var/cache/apk/*
 
 RUN addgroup \
     -S -g 1000 \
@@ -63,13 +57,13 @@ RUN addgroup \
     git && \
   echo "git:*" | chpasswd -e
 
-ENV USER git
-ENV GITEA_CUSTOM /data/gitea
+ENV USER=git
+ENV GITEA_CUSTOM=/data/gitea
 
 VOLUME ["/data"]
 
 ENTRYPOINT ["/usr/bin/entrypoint"]
-CMD ["/bin/s6-svscan", "/etc/s6"]
+CMD ["/usr/bin/s6-svscan", "/etc/s6"]
 
 COPY --from=build-env /go/src/code.gitea.io/gitea/docker/root /
 COPY --from=build-env /go/src/code.gitea.io/gitea/gitea /app/gitea/gitea

@@ -22,9 +22,6 @@ COPY download-gitea.sh /usr/bin/download-gitea.sh
 RUN /usr/bin/download-gitea.sh "$GITHUB_TOKEN" "$TARGETPLATFORM" && \
     rm /usr/bin/download-gitea.sh
 
-# build environment-to-ini
-RUN go build contrib/environment-to-ini/environment-to-ini.go
-
 
 # based on https://github.com/go-gitea/gitea/blob/main/Dockerfile
 FROM alpine
@@ -67,6 +64,5 @@ CMD ["/usr/bin/s6-svscan", "/etc/s6"]
 
 COPY --from=build-env /go/src/code.gitea.io/gitea/docker/root /
 COPY --from=build-env /go/src/code.gitea.io/gitea/gitea /app/gitea/gitea
-COPY --from=build-env /go/src/code.gitea.io/gitea/environment-to-ini /usr/local/bin/environment-to-ini
 RUN chmod 755 /usr/bin/entrypoint /app/gitea/gitea /usr/local/bin/gitea /usr/local/bin/environment-to-ini
 RUN chmod 755 /etc/s6/gitea/* /etc/s6/openssh/* /etc/s6/.s6-svscan/*
